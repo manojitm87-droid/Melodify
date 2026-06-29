@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Melodify · Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/iloveyoujustyou13-debug/melodify--music@main/Ff_Arpon_cover.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-base: #121212;
+            --bg-elevated: #181818;
+            --bg-highlight: #282828;
+            --bg-card: #1e1e1e;
+            --bg-card-hover: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #6a6a6a;
+            --accent: #1db954;
+            --accent-hover: #1ed760;
+            --shadow: 0 8px 24px rgba(0,0,0,0.6);
+            --radius: 8px;
+            --radius-sm: 6px;
+            --radius-full: 9999px;
+            --transition: 0.2s cubic-bezier(0.3,0,0,1);
+            --header-height: 64px;
+            --font: 'Inter', -apple-system, sans-serif;
+        }
+        body {
+            font-family: var(--font);
+            background: var(--bg-base);
+            color: var(--text-primary);
+            padding-top: var(--header-height);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-highlight); border-radius: var(--radius-full); }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: var(--header-height);
+            padding: 0 1.5rem;
+            background: rgba(18,18,18,0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        .header-brand img { height: 32px; border-radius: 4px; }
+        .header-brand .brand-text {
+            background: linear-gradient(135deg, var(--accent), #1ed760);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .header-actions .btn {
+            padding: 0.4rem 1rem;
+            border: none;
+            border-radius: var(--radius-full);
+            font-family: var(--font);
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-primary { background: var(--accent); color: #000; }
+        .btn-primary:hover { background: var(--accent-hover); transform: scale(1.02); }
+        .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-outline:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+        .btn-danger { background: transparent; color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .btn-danger:hover { background: rgba(239,68,68,0.1); }
+        .btn-sm { padding: 0.25rem 0.7rem; font-size: 0.7rem; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 1rem 1.5rem; }
+
+        .admin-dashboard { margin-top: 1rem; }
+        .admin-dashboard h2 { font-size: 1.4rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .admin-dashboard h2 i { color: var(--accent); }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+        .admin-stats .stat {
+            background: var(--bg-card);
+            padding: 0.8rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+        .admin-stats .stat .number { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+        .admin-stats .stat .label { font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .admin-tabs {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 0.5rem;
+        }
+        .admin-tabs .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: var(--font);
+            font-weight: 500;
+            font-size: 0.8rem;
+            padding: 0.4rem 1rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .admin-tabs .tab-btn:hover { color: var(--text-primary); background: var(--bg-card); }
+        .admin-tabs .tab-btn.active { color: #000; background: var(--accent); font-weight: 600; }
+        .admin-tab-content { display: none; animation: fadeUp 0.25s ease; }
+        .admin-tab-content.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .admin-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+        }
+        .admin-form .full-width { grid-column: 1 / -1; }
+        .admin-form label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.15rem;
+            display: block;
+        }
+        .admin-form input, .admin-form select, .admin-form textarea {
+            width: 100%;
+            padding: 0.5rem 0.8rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: var(--bg-highlight);
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 0.8rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .admin-form input:focus, .admin-form select:focus, .admin-form textarea:focus {
+            background: #333;
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+        .admin-form textarea { resize: vertical; min-height: 60px; }
+
+        .admin-form .btn { padding: 0.5rem 1.5rem; }
+
+        .admin-song-list { margin-top: 1.2rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.2rem; }
+        .admin-song-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            flex-wrap: wrap;
+        }
+        .admin-song-item .info { flex: 1; min-width: 100px; }
+        .admin-song-item .info .title { font-weight: 500; font-size: 0.85rem; }
+        .admin-song-item .info .artist { font-size: 0.7rem; color: var(--text-secondary); }
+        .admin-song-item .info .meta-stats {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 0.1rem;
+        }
+        .admin-song-item .actions { display: flex; gap: 0.3rem; }
+        .admin-song-item .actions .btn-icon {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .admin-song-item .actions .btn-icon:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+        .admin-song-item .actions .btn-icon.edit-btn { color: var(--accent); }
+        .admin-song-item .actions .btn-icon.edit-btn:hover { background: rgba(29,185,84,0.1); }
+        .admin-song-item .actions .btn-icon.delete-btn { color: #ef4444; }
+        .admin-song-item .actions .btn-icon.delete-btn:hover { background: rgba(239,68,68,0.1); }
+
+        .toast-container {
+            position: fixed;
+            top: calc(var(--header-height) + 0.8rem);
+            right: 1rem;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            max-width: 340px;
+            width: 100%;
+        }
+        .toast {
+            padding: 0.6rem 1rem;
+            border-radius: var(--radius-sm);
+            background: var(--bg-elevated);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            box-shadow: var(--shadow);
+            animation: slideInRight 0.25s ease;
+        }
+        .toast.success { border-left: 3px solid var(--accent); }
+        .toast.error { border-left: 3px solid #ef4444; }
+        .toast.info { border-left: 3px solid #3b82f6; }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--bg-highlight);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+        .empty-state i { font-size: 2.5rem; color: var(--text-muted); margin-bottom: 0.8rem; }
+        .empty-state h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.3rem; }
+
+        @media (max-width: 820px) {
+            .header { padding: 0 0.6rem; }
+            .admin-form { grid-template-columns: 1fr; }
+            .admin-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .admin-stats { grid-template-columns: 1fr 1fr; }
+            .admin-stats .stat .number { font-size: 1.2rem; }
+            .header-actions .btn { font-size: 0.6rem; padding: 0.2rem 0.5rem; }
+        }
+
+        /* GitHub batch upload styles */
+        .song-row {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: var(--radius-sm);
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        .song-row .row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.4rem;
+        }
+        .song-row .row-header .row-index { font-weight: 600; color: var(--text-secondary); font-size: 0.8rem; }
+        .song-row .row-header .remove-row {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .song-row .row-header .remove-row:hover { color: #ef4444; }
+        .song-row .row-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.6rem;
+        }
+        .song-row .row-fields .field-group label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--text-muted);
+            margin-bottom: 0.1rem;
+            display: block;
+        }
+        .song-row .row-fields .field-group input {
+            padding: 0.35rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: var(--bg-highlight);
+            color: var(--text-primary);
+            outline: none;
+            width: 100%;
+        }
+        .song-row .row-fields .field-group input:focus { box-shadow: 0 0 0 2px var(--accent); }
+        .song-row .row-files {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            margin-top: 0.4rem;
+        }
+        .song-row .row-files .file-group .file-drop-zone {
+            border: 2px dashed rgba(255,255,255,0.06);
+            border-radius: var(--radius-sm);
+            padding: 0.4rem 0.3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        .song-row .row-files .file-group .file-drop-zone:hover { border-color: var(--accent); }
+        .song-row .row-files .file-group .file-drop-zone .icon { font-size: 1rem; color: var(--text-muted); }
+        .song-row .row-files .file-group .file-drop-zone .text { font-size: 0.6rem; color: var(--text-secondary); }
+        .song-row .row-files .file-group .file-drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .song-row .row-files .file-group .file-preview {
+            display: none;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.2rem 0.4rem;
+            background: rgba(255,255,255,0.04);
+            border-radius: var(--radius-sm);
+            margin-top: 0.2rem;
+        }
+        .song-row .row-files .file-group .file-preview .file-info .name { font-size: 0.65rem; font-weight: 500; }
+        .song-row .row-files .file-group .file-preview .file-info .size { font-size: 0.55rem; color: var(--text-muted); }
+        .song-row .row-files .file-group .file-preview .remove-file {
+            color: var(--text-muted);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 0.7rem;
+        }
+        .song-row .row-files .file-group .file-preview .remove-file:hover { color: #ef4444; }
+        .song-row .row-status {
+            margin-top: 0.4rem;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.04);
+            border-left: 3px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .song-row .row-status.success { border-left-color: var(--accent); }
+        .song-row .row-status.error { border-left-color: #ef4444; }
+        .song-row .row-status .status-detail { margin-left: auto; font-size: 0.6rem; color: var(--text-muted); }
+
+        .batch-summary {
+            margin-top: 0.8rem;
+            padding: 0.6rem 0.8rem;
+            border-radius: var(--radius-sm);
+            background: rgba(29,185,84,0.08);
+            border: 1px solid rgba(29,185,84,0.15);
+            display: none;
+        }
+        .batch-summary.show { display: block; }
+        .batch-summary .summary-header { font-weight: 600; color: var(--accent); margin-bottom: 0.2rem; }
+        .batch-summary .summary-details { font-size: 0.8rem; color: var(--text-secondary); }
+
+        .save-creds-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.2rem;
+            flex-wrap: wrap;
+        }
+        .save-creds-wrapper input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
+        .save-creds-wrapper label { font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; margin: 0; }
+        .clear-creds-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .clear-creds-btn:hover { color: #ef4444; }
+
+        .progress-wrapper { margin-top: 0.4rem; display: none; }
+        .progress-wrapper.show { display: block; }
+        .progress-bar-bg {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--bg-card);
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+        .progress-status {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.15rem;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a href="index.html" class="header-brand">
+            <img src="https://cdn.jsdelivr.net/gh/iloveyoujustyou13-debug/melodify--music@main/Ff_Arpon_cover.png" alt="Melodify" />
+            <span class="brand-text">Melodify Admin</span>
+        </a>
+        <div class="header-actions">
+            <span id="adminDisplay" style="font-size:0.8rem; color:var(--text-secondary);">👑 <span id="adminName">Admin</span></span>
+            <button class="btn btn-danger btn-sm" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="container">
+        <div class="admin-dashboard" id="adminDashboard">
+            <h2><i class="fas fa-crown"></i> Admin Studio</h2>
+
+            <div class="admin-stats">
+                <div class="stat"><div class="number" id="statSongs">0</div><div class="label">Total Songs</div></div>
+                <div class="stat"><div class="number" id="statDownloads">0</div><div class="label">Total Downloads</div></div>
+                <div class="stat"><div class="number" id="statCategories">0</div><div class="label">Categories</div></div>
+                <div class="stat"><div class="number" id="statTotalLikes">0</div><div class="label">Total Likes</div></div>
+                <div class="stat"><div class="number" id="statTotalViews">0</div><div class="label">Total Views</div></div>
+            </div>
+
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="tab-add"><i class="fas fa-plus-circle"></i> Add</button>
+                <button class="tab-btn" data-tab="tab-upload"><i class="fab fa-github"></i> Batch</button>
+                <button class="tab-btn" data-tab="tab-manage"><i class="fas fa-list"></i> Manage</button>
+            </div>
+
+            <!-- TAB 1: Add Song -->
+            <div class="admin-tab-content active" id="tab-add">
+                <form class="admin-form" id="uploadForm">
+                    <div>
+                        <label for="songTitle">Song Title *</label>
+                        <input type="text" id="songTitle" placeholder="Enter song title" required />
+                    </div>
+                    <div>
+                        <label for="songArtist">Artist *</label>
+                        <input type="text" id="songArtist" placeholder="Artist name" required />
+                    </div>
+                    <div>
+                        <label for="songCategory">Category *</label>
+                        <input type="text" id="songCategory" placeholder="e.g. Pop, Rock" required />
+                    </div>
+                    <div>
+                        <label for="songAudioUrl">Audio CDN URL *</label>
+                        <input type="url" id="songAudioUrl" placeholder="https://cdn.jsdelivr.net/gh/.../song.mp3" required />
+                    </div>
+                    <div>
+                        <label for="songThumbUrl">Cover CDN URL *</label>
+                        <input type="url" id="songThumbUrl" placeholder="https://cdn.jsdelivr.net/gh/.../cover.jpg" required />
+                    </div>
+                    <div class="full-width">
+                        <label for="songLyrics">Lyrics (optional)</label>
+                        <textarea id="songLyrics" placeholder="Paste lyrics here..." rows="3"></textarea>
+                    </div>
+                    <div class="full-width" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <button type="submit" class="btn btn-primary" id="uploadBtn">
+                            <i class="fas fa-save"></i> Save Song
+                        </button>
+                        <button type="reset" class="btn btn-outline">Clear</button>
+                    </div>
+                    <div class="full-width progress-wrapper" id="uploadProgress">
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="uploadProgressFill"></div></div>
+                        <div class="progress-status"><span id="uploadStatus">Saving...</span><span id="uploadPercent">0%</span></div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB 2: GitHub Batch -->
+            <div class="admin-tab-content" id="tab-upload">
+                <div style="background:var(--bg-card); padding:0.8rem 1rem; border-radius:var(--radius-sm); margin-bottom:1rem; border-left:3px solid var(--accent);">
+                    <p style="font-size:0.85rem; color:var(--text-secondary);">
+                        <i class="fab fa-github" style="color:var(--accent);"></i>
+                        <strong>Batch upload multiple songs.</strong> Auto‑fill from filename.
+                    </p>
+                </div>
+                <form id="githubBatchForm" class="admin-form">
+                    <div>
+                        <label for="ghToken">GitHub Token</label>
+                        <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" required />
+                    </div>
+                    <div>
+                        <label for="ghOwner">Repository Owner</label>
+                        <input type="text" id="ghOwner" placeholder="your-username" required />
+                    </div>
+                    <div>
+                        <label for="ghRepo">Repository Name</label>
+                        <input type="text" id="ghRepo" placeholder="melodify-songs" required />
+                    </div>
+                    <div>
+                        <label for="ghBranch">Branch</label>
+                        <input type="text" id="ghBranch" value="main" />
+                    </div>
+                    <div class="full-width">
+                        <div class="save-creds-wrapper">
+                            <input type="checkbox" id="ghSaveCreds" checked />
+                            <label for="ghSaveCreds">Save credentials locally</label>
+                            <button type="button" class="clear-creds-btn" id="clearGhCreds">Clear saved</button>
+                        </div>
+                    </div>
+                    <div class="full-width" id="songRowsContainer">
+                        <div id="songRows"></div>
+                        <button type="button" class="btn btn-outline" id="addSongRow" style="width:100%; margin-top:0.4rem;">
+                            <i class="fas fa-plus-circle"></i> Add Song
+                        </button>
+                    </div>
+                    <div class="full-width" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.4rem;">
+                        <button type="submit" class="btn btn-primary" id="ghBatchUploadBtn">
+                            <i class="fab fa-github"></i> Upload All
+                        </button>
+                        <button type="reset" class="btn btn-outline">Clear All</button>
+                    </div>
+                    <div class="full-width progress-wrapper" id="ghBatchProgress">
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="ghBatchProgressFill"></div></div>
+                        <div class="progress-status"><span id="ghBatchStatus">Preparing...</span><span id="ghBatchPercent">0%</span></div>
+                    </div>
+                    <div class="full-width batch-summary" id="batchSummary">
+                        <div class="summary-header"><i class="fas fa-check-circle"></i> Upload complete</div>
+                        <div class="summary-details" id="batchSummaryDetails"></div>
+                    </div>
+                    <div id="ghBatchError" style="display:none; margin-top:0.8rem; padding:0.8rem; background:rgba(239,68,68,0.08); border-radius:var(--radius-sm); border:1px solid rgba(239,68,68,0.15);">
+                        <div style="color:#ef4444; font-weight:600;"><i class="fas fa-exclamation-circle"></i> Error</div>
+                        <div id="ghBatchErrorMessage" style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.2rem;"></div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB 3: Manage -->
+            <div class="admin-tab-content" id="tab-manage">
+                <div class="admin-song-list">
+                    <h3 style="font-weight:500; font-size:0.9rem; margin-bottom:0.5rem;">
+                        <i class="fas fa-list" style="color:var(--accent);"></i> All Songs
+                    </h3>
+                    <div id="adminSongList"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- TOAST -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from 'firebase/app';
+        import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot, increment, Timestamp } from 'firebase/firestore';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBYFY3eNn69NG54PsIvJkOwh2UMeTpJVdU",
+            authDomain: "melodify-85954.firebaseapp.com",
+            projectId: "melodify-85954",
+            storageBucket: "melodify-85954.firebasestorage.app",
+            messagingSenderId: "635746561853",
+            appId: "1:635746561853:web:fcc711d983cc9332f89f54"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ===== STATE =====
+        const state = {
+            songs: [],
+            isAdmin: false,
+            authUser: null,
+            $: (id) => document.getElementById(id)
+        };
+        const $ = state.$;
+
+        // ===== DOM REFS =====
+        const adminDashboard = $('adminDashboard');
+        const adminName = $('adminName');
+        const logoutBtn = $('logoutBtn');
+        const statSongs = $('statSongs');
+        const statDownloads = $('statDownloads');
+        const statCategories = $('statCategories');
+        const statTotalLikes = $('statTotalLikes');
+        const statTotalViews = $('statTotalViews');
+        const adminSongList = $('adminSongList');
+
+        // Upload form
+        const uploadForm = $('uploadForm');
+        const songTitle = $('songTitle');
+        const songArtist = $('songArtist');
+        const songCategory = $('songCategory');
+        const songAudioUrl = $('songAudioUrl');
+        const songThumbUrl = $('songThumbUrl');
+        const songLyrics = $('songLyrics');
+        const uploadBtn = $('uploadBtn');
+        const uploadProgress = $('uploadProgress');
+        const uploadProgressFill = $('uploadProgressFill');
+        const uploadStatus = $('uploadStatus');
+        const uploadPercent = $('uploadPercent');
+
+        // Batch upload
+        const ghBatchForm = $('githubBatchForm');
+        const ghToken = $('ghToken');
+        const ghOwner = $('ghOwner');
+        const ghRepo = $('ghRepo');
+        const ghBranch = $('ghBranch');
+        const ghSaveCreds = $('ghSaveCreds');
+        const clearGhCreds = $('clearGhCreds');
+        const songRowsContainer = $('songRows');
+        const addSongRowBtn = $('addSongRow');
+        const ghBatchUploadBtn = $('ghBatchUploadBtn');
+        const ghBatchProgress = $('ghBatchProgress');
+        const ghBatchProgressFill = $('ghBatchProgressFill');
+        const ghBatchStatus = $('ghBatchStatus');
+        const ghBatchPercent = $('ghBatchPercent');
+        const batchSummary = $('batchSummary');
+        const batchSummaryDetails = $('batchSummaryDetails');
+        const ghBatchError = $('ghBatchError');
+        const ghBatchErrorMessage = $('ghBatchErrorMessage');
+
+        // ==============================================================
+        //  TOAST
+        // ==============================================================
+        function showToast(message, type = 'info') {
+            const container = $('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(30px)';
+                toast.style.transition = '0.25s ease';
+                setTimeout(() => toast.remove(), 350);
+            }, 3200);
+        }
+
+        // ==============================================================
+        //  CDN HELPER
+        // ==============================================================
+        function convertToCdnUrl(url) {
+            if (!url) return url;
+            if (url.includes('cdn.jsdelivr.net/gh/')) return url;
+            const rawMatch = url.match(/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)/);
+            if (rawMatch) {
+                const [, username, repo, branch, path] = rawMatch;
+                return `https://cdn.jsdelivr.net/gh/${username}/${repo}@${branch}/${path}`;
+            }
+            return url;
+        }
+
+        // ==============================================================
+        //  ESCAPE HTML
+        // ==============================================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==============================================================
+        //  AUTH
+        // ==============================================================
+        onAuthStateChanged(auth, async (user) => {
+            state.authUser = user;
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            // Check custom claim
+            const tokenResult = await user.getIdTokenResult();
+            const isAdmin = tokenResult.claims.admin === true;
+            state.isAdmin = isAdmin;
+
+            if (!isAdmin) {
+                showToast('You are not authorized as admin.', 'error');
+                setTimeout(() => { window.location.href = 'user-dashboard.html'; }, 1500);
+                return;
+            }
+
+            adminName.textContent = user.displayName || user.email || 'Admin';
+            adminDashboard.style.display = 'block';
+            loadAdminSongs();
+            updateStats();
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            try { await signOut(auth); } catch (e) { showToast('Error logging out.', 'error'); }
+        });
+
+        // ==============================================================
+        //  ADMIN TABS
+        // ==============================================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.admin-tab-content').forEach(tc => tc.classList.remove('active'));
+                const target = $(btn.dataset.tab);
+                if (target) target.classList.add('active');
+            });
+        });
+
+        // ==============================================================
+        //  UPLOAD SONG
+        // ==============================================================
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!state.isAdmin) { showToast('Not authorized.', 'error'); return; }
+
+            const title = songTitle.value.trim();
+            const artist = songArtist.value.trim();
+            const category = songCategory.value.trim();
+            let audioUrl = songAudioUrl.value.trim();
+            let thumbUrl = songThumbUrl.value.trim();
+            const lyrics = songLyrics.value.trim();
+
+            if (!title || !artist || !category || !audioUrl || !thumbUrl) {
+                showToast('Please fill all required fields.', 'error');
+                return;
+            }
+
+            audioUrl = convertToCdnUrl(audioUrl);
+            thumbUrl = convertToCdnUrl(thumbUrl);
+
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            uploadProgress.classList.add('show');
+            uploadProgressFill.style.width = '0%';
+            uploadPercent.textContent = '0%';
+            uploadStatus.textContent = 'Saving...';
+
+            const songData = {
+                title, artist, category,
+                thumbnailUrl: thumbUrl,
+                audioUrl: audioUrl,
+                lyrics: lyrics || '',
+                downloads: 0, likes: 0, views: 0,
+                uploadDate: Timestamp.now(),
+            };
+
+            try {
+                await addDoc(collection(db, 'songs'), songData);
+                uploadProgressFill.style.width = '100%';
+                uploadPercent.textContent = '100%';
+                uploadStatus.textContent = '✅ Saved!';
+                showToast(`"${title}" added!`, 'success');
+                uploadForm.reset();
+                setTimeout(() => {
+                    uploadProgress.classList.remove('show');
+                    uploadProgressFill.style.width = '0%';
+                    uploadPercent.textContent = '0%';
+                }, 2000);
+            } catch (err) {
+                showToast('Failed to save: ' + err.message, 'error');
+                uploadStatus.textContent = '❌ Failed.';
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '<i class="fas fa-save"></i> Save Song';
+            }
+        });
+
+        // ==============================================================
+        //  ADMIN MANAGE
+        // ==============================================================
+        function loadAdminSongs() {
+            if (!state.isAdmin) return;
+            if (state.songs.length === 0) {
+                adminSongList.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No songs uploaded yet.</p>';
+                return;
+            }
+
+            adminSongList.innerHTML = state.songs.map(song => `
+                <div class="admin-song-item" data-id="${song.id}">
+                    <div class="info">
+                        <div class="title">${escapeHtml(song.title)}</div>
+                        <div class="artist">${escapeHtml(song.artist)} · ${escapeHtml(song.category || 'Uncategorized')}</div>
+                        <div class="meta-stats">
+                            <span><i class="fas fa-heart" style="color:#ef4444;"></i> ${song.likes || 0}</span>
+                            <span><i class="fas fa-eye"></i> ${song.views || 0}</span>
+                            <span><i class="fas fa-arrow-down"></i> ${song.downloads || 0}</span>
+                            ${song.lyrics ? `<span><i class="fas fa-align-left"></i> Lyrics</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-icon edit-btn edit-song" data-id="${song.id}"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon delete-btn delete-song" data-id="${song.id}"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            adminSongList.querySelectorAll('.edit-song').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const song = state.songs.find(s => s.id === btn.dataset.id);
+                    if (song) openEditModal(song);
+                });
+            });
+            adminSongList.querySelectorAll('.delete-song').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (confirm('Delete this song permanently?')) deleteSong(btn.dataset.id);
+                });
+            });
+        }
+
+        async function deleteSong(id) {
+            if (!state.isAdmin) return;
+            try {
+                await deleteDoc(doc(db, 'songs', id));
+                showToast('Song deleted.', 'info');
+            } catch (err) {
+                showToast('Error deleting song.', 'error');
+            }
+        }
+
+        function openEditModal(song) {
+            const newTitle = prompt('Edit song title:', song.title);
+            if (newTitle === null) return;
+            const newArtist = prompt('Edit artist name:', song.artist);
+            if (newArtist === null) return;
+            const newCategory = prompt('Edit category:', song.category || '');
+            if (newCategory === null) return;
+            const newLyrics = prompt('Edit lyrics (or leave empty):', song.lyrics || '');
+            if (newLyrics === null) return;
+            updateSong(song.id, {
+                title: newTitle.trim(),
+                artist: newArtist.trim(),
+                category: newCategory.trim(),
+                lyrics: newLyrics.trim()
+            });
+        }
+
+        async function updateSong(id, data) {
+            if (!state.isAdmin) return;
+            try {
+                await updateDoc(doc(db, 'songs', id), data);
+                showToast('Song updated!', 'success');
+            } catch (err) {
+                showToast('Error updating song.', 'error');
+            }
+        }
+
+        function updateStats() {
+            const total = state.songs.length;
+            const downloads = state.songs.reduce((sum, s) => sum + (s.downloads || 0), 0);
+            const totalLikes = state.songs.reduce((sum, s) => sum + (s.likes || 0), 0);
+            const totalViews = state.songs.reduce((sum, s) => sum + (s.views || 0), 0);
+            statSongs.textContent = total;
+            statDownloads.textContent = downloads;
+            statCategories.textContent = new Set(state.songs.map(s => s.category).filter(Boolean)).size;
+            statTotalLikes.textContent = totalLikes;
+            statTotalViews.textContent = totalViews;
+        }
+
+        // ==============================================================
+        //  FIRESTORE LISTEN
+        // ==============================================================
+        let unsubscribeSongs = null;
+
+        function listenSongs() {
+            if (unsubscribeSongs) unsubscribeSongs();
+            const q = query(collection(db, 'songs'), orderBy('uploadDate', 'desc'));
+            unsubscribeSongs = onSnapshot(q, (snapshot) => {
+                const songs = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    songs.push({
+                        id: doc.id,
+                        ...data,
+                        likes: data.likes || 0,
+                        views: data.views || 0,
+                        lyrics: data.lyrics || '',
+                    });
+                });
+                state.songs = songs;
+                if (state.isAdmin) {
+                    loadAdminSongs();
+                    updateStats();
+                }
+            }, (err) => {
+                console.error('Firestore listen error:', err);
+                showToast('Error loading songs.', 'error');
+            });
+        }
+
+        // ==============================================================
+        //  BATCH UPLOADER (GitHub)
+        // ==============================================================
+        const CREDS_KEY = 'melodify_github_creds';
+
+        function loadSavedCredentials() {
+            try {
+                const data = localStorage.getItem(CREDS_KEY);
+                if (data) {
+                    const creds = JSON.parse(data);
+                    ghToken.value = creds.token || '';
+                    ghOwner.value = creds.owner || '';
+                    ghRepo.value = creds.repo || '';
+                    ghBranch.value = creds.branch || 'main';
+                    ghSaveCreds.checked = true;
+                }
+            } catch (e) {}
+        }
+
+        function saveCredentials() {
+            const creds = {
+                token: ghToken.value.trim(),
+                owner: ghOwner.value.trim(),
+                repo: ghRepo.value.trim(),
+                branch: ghBranch.value.trim() || 'main'
+            };
+            localStorage.setItem(CREDS_KEY, JSON.stringify(creds));
+        }
+
+        function clearCredentials() {
+            localStorage.removeItem(CREDS_KEY);
+            ghToken.value = '';
+            ghOwner.value = '';
+            ghRepo.value = '';
+            ghBranch.value = 'main';
+            ghSaveCreds.checked = false;
+            showToast('Saved credentials cleared.', 'info');
+        }
+        clearGhCreds.addEventListener('click', clearCredentials);
+
+        function extractTitleArtistFromFilename(filename) {
+            const base = filename.replace(/\.[^.]+$/, '');
+            if (base.includes(' - ')) {
+                const parts = base.split(' - ');
+                return { title: parts[0].trim(), artist: parts.slice(1).join(' - ').trim() };
+            }
+            return { title: base.trim(), artist: '' };
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function buildCdnLink(owner, repo, branch, filename) {
+            return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${filename}`;
+        }
+
+        function uploadFileToGitHub(token, owner, repo, branch, path, content, message, onProgress) {
+            const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+            const payload = { message: message || `Upload ${path}`, content: content, branch: branch };
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('PUT', url);
+                xhr.setRequestHeader('Authorization', `token ${token}`);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total);
+                });
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try { resolve(JSON.parse(xhr.responseText)); } catch { resolve({}); }
+                    } else {
+                        try {
+                            const err = JSON.parse(xhr.responseText);
+                            reject(new Error(err.message || `HTTP ${xhr.status}`));
+                        } catch { reject(new Error(`HTTP ${xhr.status}`)); }
+                    }
+                };
+                xhr.onerror = () => reject(new Error('Network error'));
+                xhr.send(JSON.stringify(payload));
+            });
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function saveSongToFirestore(title, artist, category, audioUrl, thumbUrl, lyrics = '') {
+            try {
+                const data = {
+                    title: title.trim(),
+                    artist: artist.trim(),
+                    category: category.trim(),
+                    audioUrl: audioUrl,
+                    thumbnailUrl: thumbUrl,
+                    lyrics: lyrics.trim() || '',
+                    downloads: 0, likes: 0, views: 0,
+                    uploadDate: Timestamp.now(),
+                };
+                const docRef = await addDoc(collection(db, 'songs'), data);
+                return docRef.id;
+            } catch (err) {
+                console.error('Firestore save error:', err);
+                throw new Error('Failed to save song to database: ' + err.message);
+            }
+        }
+
+        function setRowStatus(row, status, detail = '') {
+            const statusDiv = row.querySelector('.row-status');
+            statusDiv.style.display = 'flex';
+            const icon = statusDiv.querySelector('.status-icon');
+            const text = statusDiv.querySelector('.status-text');
+            const detailEl = statusDiv.querySelector('.status-detail');
+            statusDiv.className = 'row-status';
+            if (status === 'pending') {
+                icon.innerHTML = '<i class="fas fa-clock"></i>';
+                text.textContent = 'Pending';
+                detailEl.textContent = '';
+            } else if (status === 'uploading') {
+                icon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                text.textContent = 'Uploading...';
+                detailEl.textContent = detail || '';
+            } else if (status === 'saving') {
+                icon.innerHTML = '<i class="fas fa-database"></i>';
+                text.textContent = 'Saving...';
+                detailEl.textContent = '';
+            } else if (status === 'success') {
+                statusDiv.classList.add('success');
+                icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                text.textContent = '✅ Done';
+                detailEl.textContent = detail || '';
+            } else if (status === 'error') {
+                statusDiv.classList.add('error');
+                icon.innerHTML = '<i class="fas fa-times-circle"></i>';
+                text.textContent = '❌ Failed';
+                detailEl.textContent = detail || '';
+            }
+        }
+
+        function createSongRow(index) {
+            const row = document.createElement('div');
+            row.className = 'song-row';
+            row.dataset.index = index;
+            row.innerHTML = `
+                <div class="row-header">
+                    <span class="row-index">#${index + 1}</span>
+                    <button type="button" class="remove-row" data-index="${index}"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="row-fields">
+                    <div class="field-group">
+                        <label>Title *</label>
+                        <input type="text" class="row-title" placeholder="Song title" required />
+                    </div>
+                    <div class="field-group">
+                        <label>Artist *</label>
+                        <input type="text" class="row-artist" placeholder="Artist name" required />
+                    </div>
+                    <div class="field-group">
+                        <label>Category *</label>
+                        <input type="text" class="row-category" placeholder="e.g. Pop, Rock" required />
+                    </div>
+                </div>
+                <div class="row-files">
+                    <div class="file-group">
+                        <label>🎵 Audio File</label>
+                        <div class="file-drop-zone">
+                            <div class="icon"><i class="fas fa-music"></i></div>
+                            <div class="text">Drop or <strong>browse</strong></div>
+                            <input type="file" class="row-audio" accept=".mp3,.webm,.wav,.ogg" required />
+                        </div>
+                        <div class="file-preview" style="display:none;">
+                            <div class="file-icon"><i class="fas fa-file-audio"></i></div>
+                            <div class="file-info"><span class="name"></span><span class="size"></span></div>
+                            <button type="button" class="remove-file"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="file-group">
+                        <label>🖼️ Cover Image</label>
+                        <div class="file-drop-zone">
+                            <div class="icon"><i class="fas fa-image"></i></div>
+                            <div class="text">Drop or <strong>browse</strong></div>
+                            <input type="file" class="row-image" accept=".png,.jpg,.jpeg,.webp" required />
+                        </div>
+                        <div class="file-preview" style="display:none;">
+                            <img src="#" alt="preview" style="width:30px;height:30px;object-fit:cover;border-radius:4px;" />
+                            <div class="file-info"><span class="name"></span><span class="size"></span></div>
+                            <button type="button" class="remove-file"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-fields" style="margin-top:0.4rem; grid-template-columns:1fr;">
+                    <div class="field-group">
+                        <label>📝 Lyrics (optional)</label>
+                        <input type="text" class="row-lyrics" placeholder="Paste lyrics or leave empty" />
+                    </div>
+                </div>
+                <div class="row-status" style="display:none;">
+                    <span class="status-icon"></span>
+                    <span class="status-text"></span>
+                    <span class="status-detail"></span>
+                </div>
+            `;
+            return row;
+        }
+
+        function setupRowEvents(row) {
+            row.querySelector('.remove-row').addEventListener('click', () => {
+                row.remove();
+                updateRowIndices();
+            });
+
+            const audioInput = row.querySelector('.row-audio');
+            const audioPreview = row.querySelector('.file-group:nth-child(1) .file-preview');
+            const audioName = audioPreview.querySelector('.name');
+            const audioSize = audioPreview.querySelector('.size');
+            const removeAudioBtn = audioPreview.querySelector('.remove-file');
+            const titleInput = row.querySelector('.row-title');
+            const artistInput = row.querySelector('.row-artist');
+
+            audioInput.addEventListener('change', () => {
+                const file = audioInput.files[0];
+                if (!file) { audioPreview.style.display = 'none'; return; }
+                audioPreview.style.display = 'flex';
+                audioName.textContent = file.name;
+                audioSize.textContent = formatFileSize(file.size);
+                const { title, artist } = extractTitleArtistFromFilename(file.name);
+                if (!titleInput.value.trim()) titleInput.value = title;
+                if (!artistInput.value.trim()) artistInput.value = artist;
+            });
+            removeAudioBtn.addEventListener('click', () => { audioInput.value = ''; audioPreview.style.display = 'none'; });
+
+            const imageInput = row.querySelector('.row-image');
+            const imagePreview = row.querySelector('.file-group:nth-child(2) .file-preview');
+            const imageName = imagePreview.querySelector('.name');
+            const imageSize = imagePreview.querySelector('.size');
+            const removeImageBtn = imagePreview.querySelector('.remove-file');
+            const imageThumb = imagePreview.querySelector('img');
+
+            imageInput.addEventListener('change', () => {
+                const file = imageInput.files[0];
+                if (!file) { imagePreview.style.display = 'none'; return; }
+                imagePreview.style.display = 'flex';
+                imageName.textContent = file.name;
+                imageSize.textContent = formatFileSize(file.size);
+                const reader = new FileReader();
+                reader.onload = (e) => { imageThumb.src = e.target.result; };
+                reader.readAsDataURL(file);
+            });
+            removeImageBtn.addEventListener('click', () => { imageInput.value = ''; imagePreview.style.display = 'none'; });
+
+            const dropZones = row.querySelectorAll('.file-drop-zone');
+            const inputs = [audioInput, imageInput];
+            dropZones.forEach((zone, idx) => {
+                const input = inputs[idx];
+                zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+                zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        input.files = files;
+                        input.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+        }
+
+        function updateRowIndices() {
+            const rows = songRowsContainer.querySelectorAll('.song-row');
+            rows.forEach((row, i) => {
+                row.dataset.index = i;
+                row.querySelector('.row-index').textContent = `#${i + 1}`;
+            });
+        }
+
+        function addSongRow() {
+            const index = songRowsContainer.children.length;
+            const row = createSongRow(index);
+            songRowsContainer.appendChild(row);
+            setupRowEvents(row);
+            updateRowIndices();
+        }
+
+        addSongRow();
+        addSongRowBtn.addEventListener('click', addSongRow);
+
+        // ==============================================================
+        //  BATCH UPLOAD SUBMIT
+        // ==============================================================
+        ghBatchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            ghBatchError.style.display = 'none';
+            batchSummary.classList.remove('show');
+
+            const token = ghToken.value.trim();
+            const owner = ghOwner.value.trim();
+            const repo = ghRepo.value.trim();
+            const branch = ghBranch.value.trim() || 'main';
+
+            if (!token || !owner || !repo) {
+                showToast('Please fill GitHub credentials.', 'error');
+                return;
+            }
+
+            if (ghSaveCreds.checked) saveCredentials();
+            else localStorage.removeItem(CREDS_KEY);
+
+            const rows = songRowsContainer.querySelectorAll('.song-row');
+            const songData = [];
+            let valid = true;
+
+            rows.forEach((row, idx) => {
+                const title = row.querySelector('.row-title').value.trim();
+                const artist = row.querySelector('.row-artist').value.trim();
+                const category = row.querySelector('.row-category').value.trim();
+                const lyrics = row.querySelector('.row-lyrics')?.value.trim() || '';
+                const audioFile = row.querySelector('.row-audio').files[0];
+                const imageFile = row.querySelector('.row-image').files[0];
+
+                if (!title || !artist || !category || !audioFile || !imageFile) {
+                    valid = false;
+                    setRowStatus(row, 'error', 'Missing required fields or files');
+                } else {
+                    setRowStatus(row, 'pending');
+                    songData.push({ row, title, artist, category, lyrics, audioFile, imageFile });
+                }
+            });
+
+            if (!valid || songData.length === 0) {
+                showToast('Please fill all required fields and select files for each song.', 'error');
+                return;
+            }
+
+            ghBatchUploadBtn.disabled = true;
+            ghBatchUploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            ghBatchProgress.classList.add('show');
+            ghBatchProgressFill.style.width = '0%';
+            ghBatchPercent.textContent = '0%';
+            ghBatchStatus.textContent = 'Starting...';
+
+            let completed = 0;
+            const total = songData.length;
+            const results = [];
+
+            try {
+                for (let i = 0; i < total; i++) {
+                    const data = songData[i];
+                    const { row, title, artist, category, lyrics, audioFile, imageFile } = data;
+
+                    setRowStatus(row, 'uploading', 'Reading files...');
+                    ghBatchStatus.textContent = `Processing ${i+1}/${total}: "${title}"`;
+
+                    const audioExt = audioFile.name.split('.').pop();
+                    const imageExt = imageFile.name.split('.').pop();
+                    const safeTitle = title.replace(/[^a-zA-Z0-9]/g, '_');
+                    const safeArtist = artist.replace(/[^a-zA-Z0-9]/g, '_');
+                    const audioFilename = `${safeTitle}_${safeArtist}.${audioExt}`;
+                    const imageFilename = `${safeTitle}_${safeArtist}_cover.${imageExt}`;
+
+                    const [audioBase64, imageBase64] = await Promise.all([
+                        readFileAsBase64(audioFile),
+                        readFileAsBase64(imageFile)
+                    ]);
+
+                    setRowStatus(row, 'uploading', 'Uploading audio...');
+                    await uploadFileToGitHub(token, owner, repo, branch, audioFilename, audioBase64,
+                        `Add audio: ${title}`, () => {});
+
+                    setRowStatus(row, 'uploading', 'Uploading cover...');
+                    await uploadFileToGitHub(token, owner, repo, branch, imageFilename, imageBase64,
+                        `Add cover: ${title}`, () => {});
+
+                    const audioCdn = buildCdnLink(owner, repo, branch, audioFilename);
+                    const imageCdn = buildCdnLink(owner, repo, branch, imageFilename);
+
+                    setRowStatus(row, 'saving');
+                    await saveSongToFirestore(title, artist, category, audioCdn, imageCdn, lyrics);
+
+                    setRowStatus(row, 'success', `CDN: ${audioCdn}`);
+                    results.push({ title, artist, category, audioCdn, imageCdn });
+
+                    completed++;
+                    const progress = (completed / total) * 100;
+                    ghBatchProgressFill.style.width = progress + '%';
+                    ghBatchPercent.textContent = Math.round(progress) + '%';
+                    ghBatchStatus.textContent = `Completed ${completed}/${total}`;
+                }
+
+                ghBatchStatus.textContent = '✅ All songs uploaded and saved!';
+                ghBatchProgressFill.style.width = '100%';
+                ghBatchPercent.textContent = '100%';
+
+                const details = results.map(r =>
+                    `✅ ${r.title} by ${r.artist} (${r.category})`
+                ).join('<br>');
+                batchSummaryDetails.innerHTML = details;
+                batchSummary.classList.add('show');
+
+                showToast(`Successfully uploaded ${total} songs!`, 'success');
+
+            } catch (err) {
+                console.error(err);
+                ghBatchErrorMessage.textContent = err.message || 'Batch upload failed.';
+                ghBatchError.style.display = 'block';
+                showToast('Batch upload failed: ' + err.message, 'error');
+                const currentRow = songData[completed]?.row;
+                if (currentRow) setRowStatus(currentRow, 'error', err.message);
+            } finally {
+                ghBatchUploadBtn.disabled = false;
+                ghBatchUploadBtn.innerHTML = '<i class="fab fa-github"></i> Upload All';
+            }
+        });
+
+        // ==============================================================
+        //  INIT
+        // ==============================================================
+        loadSavedCredentials();
+        listenSongs();
+
+        console.log('👑 Melodify · Admin Dashboard');
+        console.log('🔒 Only users with admin claim can access.');
+    </script>
+</body>
+</html>
